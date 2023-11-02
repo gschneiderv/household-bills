@@ -1,5 +1,6 @@
 import cv2
 import pytesseract
+import pandas as pd
 
 def extract_text_from_image(image_path):
     # Read the image using OpenCV
@@ -24,8 +25,11 @@ def extract_text_from_image(image_path):
 image_path = 'tickets/ticket1.jpg'
 
 # Extract text from the image
-result = extract_text_from_image(image_path)
+#result = extract_text_from_image(image_path)
+
+df_test = pd.DataFrame()
+print(df_test)
 
 # Print the extracted lines
-for line in result:
-    print(line)
+#for line in result:
+#    print(line)

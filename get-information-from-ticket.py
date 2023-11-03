@@ -27,7 +27,7 @@ image_path = 'tickets/ticket1.jpg'
 # Extract text from the image
 #result = extract_text_from_image(image_path)
 
-df_test = pd.DataFrame()
+df_test = pd.DataFrame(columns=['Num_items','item','euro/kg','total price'])
 print(df_test)
 
 # Print the extracted lines

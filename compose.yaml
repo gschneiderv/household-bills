@@ -1,13 +1,8 @@
-# https://docs.docker.com/compose/compose-file/
-
 services:
   gasvi-postgres:
     image: postgres
     ports:
       - 5432:5432
-    #volumes:
-      #- ~/apps/postgres:/var/lib/postgresql/data
     environment:
        - POSTGRES_PASSWORD=prueba
        - POSTGRES_USER=prueba
-       #- POSTGRES_DB=

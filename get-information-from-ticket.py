@@ -15,16 +15,8 @@ def apply_preprocessing_image(orig):
     gray = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (5, 5,), 0)
     edged = cv2.Canny(blurred, 75, 200)
-    # check to see if we should show the output of our edge detection
-    # procedure
    
     
-    #cv2.imshow("Input", image2)
-    cv2.imshow("Edged", edged)
-    #cv2.imshow("Blurred", blurred)
-    #cv2.imshow("Gray", gray)
-    cv2.waitKey(0)
-
     # find contours in the edge map and sort them by size in descending
 # order
     cnts = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -50,13 +42,8 @@ def apply_preprocessing_image(orig):
     if receiptCnt is None:
         raise Exception(("Could not find receipt outline. "
             "Try debugging your edge detection and contour steps."))
-    # check to see if we should draw the contour of the receipt on the
-    # image and then display it to our screen
+
   
-    #output = image2.copy()
-    #cv2.drawContours(output, [receiptCnt], -1, (0, 255, 0), 2)
-    #cv2.imshow("Receipt Outline", output)
-    #cv2.waitKey(0)
     # apply a four-point perspective transform to the *original* image to
     # obtain a top-down bird's-eye view of the receipt
     receipt = four_point_transform(orig, receiptCnt.reshape(4, 2) * ratio)

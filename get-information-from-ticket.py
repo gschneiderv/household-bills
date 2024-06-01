@@ -1,8 +1,11 @@
+import os
+import re
 import cv2
 import pytesseract
-import pandas as pd
 import imutils
 from imutils.perspective import four_point_transform
+from supermarkets import SUPERMARKETS
+from products import PRODUCTS
 
 
 def apply_preprocessing_image(orig):
@@ -15,14 +18,12 @@ def apply_preprocessing_image(orig):
     gray = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (5, 5,), 0)
     edged = cv2.Canny(blurred, 75, 200)
-   
-    
     # find contours in the edge map and sort them by size in descending
 # order
     cnts = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
-    print(cnts)
+    #print(cnts)
 
     # initialize a contour that corresponds to the receipt outline
     receiptCnt = None
@@ -34,7 +35,7 @@ def apply_preprocessing_image(orig):
         # if our approximated contour has four points, then we can
         # assume we have found the outline of the receipt
         if len(approx) == 4:
-            print("Contour found")
+            #print("Contour found")
             receiptCnt = approx
             break
     # if the receipt contour is empty then our script could not find the
@@ -48,8 +49,8 @@ def apply_preprocessing_image(orig):
     # obtain a top-down bird's-eye view of the receipt
     receipt = four_point_transform(orig, receiptCnt.reshape(4, 2) * ratio)
     # show transformed image
-    cv2.imshow("Receipt Transform", imutils.resize(receipt, width=500))
-    cv2.waitKey(0)
+    #cv2.imshow("Receipt Transform", imutils.resize(receipt, width=500))
+    #cv2.waitKey(0)
     return receipt
 
 def extract_text_from_image(image_path):
@@ -72,17 +73,54 @@ def extract_text_from_image(image_path):
 
     return lines
 
-# Provide the path to your image containing the ticket
-image_path = 'tickets/ticket1.jpg' #doesn't work
-image_path = 'tickets/20231001_163618.jpg' # works
-#image_path = 'tickets/20230703_213912.jpg'
 
-# Extract text from the image
-result = extract_text_from_image(image_path)
+def get_supermarket(ticket_info):
+    for line in ticket_info:
+        for supermarket in SUPERMARKETS:
+            if supermarket in line.lower():
+                return supermarket
+    return "Supermarket not found"
 
-df_test = pd.DataFrame(columns=['Num_items','item','euro/kg','total price'])
-print(df_test)
 
-# Print the extracted lines
-for line in result:
-    print(line)
+def get_product_lines(ticket_info):
+    product_line = []
+    for line in ticket_info:
+        # Convert line in set of words to be faster
+        words = set(line.split())
+        if words & PRODUCTS: # Check if there are common words between the line and the products
+            product_line.append(line)
+    return product_line
+
+
+def get_date(receipt_info):
+    datematch = re.compile(r'(\d+/\d+/\d+)')
+    for line in receipt_info:
+        if datematch.search(line):
+            return line
+    return "Date not found"
+
+# Initialize a dictionary to store the shoppings for each supermarket
+shoppings = { supermarket : [] for supermarket in SUPERMARKETS }
+for reciept_path in os.listdir('tickets'):
+    try: 
+        # Extract text from the receipt
+        receipt_info = extract_text_from_image(f"tickets/{reciept_path}")
+        # Lowercase all lines
+        receipt_info = [line.lower() for line in receipt_info]
+
+        supermarket = get_supermarket(receipt_info)
+        products = get_product_lines(receipt_info)
+        receipt_date = get_date(receipt_info)
+
+        if supermarket:
+            shoppings[supermarket].append({
+                "products": products,
+                "date": receipt_date
+            })
+        else:
+            print("Supermarket not found")
+            print("Receipe was: ", receipt_info)
+            print("Receipt date: ", receipt_date)
+            print("Products found: ", products)
+    except Exception as e:
+        print(f"Error processing {reciept_path}: {e}")

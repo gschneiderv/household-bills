@@ -99,8 +99,9 @@ def get_date(receipt_info):
             return line
     return "Date not found"
 
+
 # Initialize a dictionary to store the shoppings for each supermarket
-shoppings = { supermarket : [] for supermarket in SUPERMARKETS }
+shoppings = {supermarket: [] for supermarket in SUPERMARKETS}
 for reciept_path in os.listdir('tickets'):
     try: 
         # Extract text from the receipt

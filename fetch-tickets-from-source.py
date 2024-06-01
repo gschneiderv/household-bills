@@ -48,6 +48,6 @@ def fetch_files_from_drive():
 
             print(f"{file_name} downloaded successfully.")
 
-        print('Download completed.')
+        print(f"Download completed. Total number of tickets {len(ticket_images)}")
 
 fetch_files_from_drive()
